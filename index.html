@@ -111,13 +111,33 @@
   .thong-bao:not(:empty) { padding: 6px 12px; animation: nay .35s ease-out; }
   @keyframes nay { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   footer { text-align: center; padding: 28px 20px 36px; font-weight: 600; color: var(--hong-dam); }
+
+  #nut-nhac {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 10;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    background: var(--hong-dam);
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--tim);
+  }
+  #nut-nhac.tat { background: #bbb; }
+
   @media (prefers-reduced-motion: reduce) { .sao, .thong-bao:not(:empty), .nut-dat { animation: none; transition: none; } }
 </style>
 </head>
 <body>
 
+<!-- Thay link bên dưới bằng link trực tiếp tới file .mp3 của bạn -->
+<audio id="nhac" loop src="hihi.mp3"></audio>
+<button id="nut-nhac" type="button" aria-label="Bật/tắt nhạc">🎵</button>
+
 <header>
-  <!-- 4 ảnh bay: thay src bằng ảnh của bạn, ví dụ src="anh/sao1.png" (nên dùng PNG nền trong suốt) -->
   <img class="sao" alt="" aria-hidden="true" src="https://i.postimg.cc/zfYZmZ9z/Du-an-moi-27-4C2B446.gif">
   <h1>Dịch Vụ Chút Chít</h1>
   <p>Đến tận nơi, vào tận nhà</p>
@@ -126,9 +146,8 @@
 <main>
 
   <article class="the">
-    <!-- Muốn dùng ảnh thật: thay src bằng đường dẫn ảnh, ví dụ src="anh/tam-goi.jpg" -->
     <img alt="Tuấn Khiêm" src="https://cdn.upanhlaylink.com/i/MsvMDPym.jpeg">
-    <div class="noi-dung">.
+    <div class="noi-dung">
       <h2>Tuấn Khiêm</h2>
       <p>19 Tuổi, Chủ Công Ty .</p>
       <div class="gia">Từ 500.000đ/15 phút</div>
@@ -143,7 +162,7 @@
       <h2>Gia Khiêm</h2>
       <p>Cắt tỉa tóc gọn gàng theo ý bạn, từ kiểu mát mẻ mùa hè đến kiểu xinh xắn.</p>
       <div class="gia">Từ 399.000đ/16 phút</div>
-      <button class="nut-dat type="button">Đặt ngay</button>
+      <button class="nut-dat" type="button">Đặt ngay</button>
       <div class="thong-bao" role="status"></div>
     </div>
   </article>
@@ -171,7 +190,7 @@
   </article>
 
   <article class="the">
-    <img alt="Chí Cường" src="data:image/svg+xml,%3Csvg xmlns='https://cdn.discordapp.com/attachments/1121427229637877891/1565716424394154044/b1eed671d8899694e893f42a53baeb93_1.jpg?ex=6ae5ea8d&is=6ae4990d&hm=f7d904552b162eae7d584db7f6d3ce5dece745b04b127652ab648b73236e020e&' viewBox='0 0 270 480'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FFD3E4'/%3E%3Cstop offset='1' stop-color='%23E3D9FF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='270' height='480' fill='url(%23g)'/%3E%3Ctext x='24' y='60' font-size='30'%3E✨%3C/text%3E%3Ctext x='200' y='450' font-size='26'%3E💗%3C/text%3E%3Ctext x='135' y='275' font-size='110' text-anchor='middle'%3E🎀%3C/text%3E%3C/svg%3E">
+    <img alt="Chí Cường" src="https://cdn.discordapp.com/attachments/1121427229637877891/1565716424394154044/b1eed671d8899694e893f42a53baeb93_1.jpg?ex=6ae5ea8d&is=6ae4990d&hm=f7d904552b162eae7d584db7f6d3ce5dece745b04b127652ab648b73236e020e&">
     <div class="noi-dung">
       <h2>Chí Cường</h2>
       <p>Đánh nhanh rút lẹ, chuyên viên kỹ thuật cao.</p>
@@ -204,6 +223,36 @@
       nut.parentElement.querySelector('.thong-bao').textContent = 'Nhân viên sẽ liên hệ với bạn! ✨';
     });
   });
+
+  // ===== Nhạc nền =====
+  var nhac = document.getElementById('nhac');
+  var nutNhac = document.getElementById('nut-nhac');
+  nhac.volume = 0.5;
+
+  var suKien = ['click', 'touchstart', 'keydown', 'scroll', 'wheel'];
+
+  function batDau() {
+    nhac.play().then(function () {
+      suKien.forEach(function (ev) {
+        document.removeEventListener(ev, batDau);
+      });
+    }).catch(function () {});
+  }
+
+  // Thử phát ngay khi mở trang; nếu bị chặn thì chờ lần chạm/lướt đầu tiên
+  nhac.play().catch(function () {
+    suKien.forEach(function (ev) {
+      document.addEventListener(ev, batDau, { passive: true });
+    });
+  });
+
+  // Nút bật/tắt
+  nutNhac.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (nhac.paused) { nhac.play(); } else { nhac.pause(); }
+  });
+  nhac.addEventListener('play', function () { nutNhac.classList.remove('tat'); });
+  nhac.addEventListener('pause', function () { nutNhac.classList.add('tat'); });
 </script>
 </body>
 </html>
